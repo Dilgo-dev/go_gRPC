@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package log;
+
+option go_package = "go_server/internal/proto";
+
+service LogService {
+  rpc CreateLog(LogRequest) returns (LogResponse) {}
+  rpc GetLogs(EmptyRequest) returns (LogsResponse) {}
+}
+
+message LogRequest {
+  string message = 1;
+}
+
+message LogResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message EmptyRequest {}
+
+message LogEntry {
+  uint64 id = 1;
+  string message = 2;
+  string created_at = 3;
+}
+
+message LogsResponse {
+  repeated LogEntry logs = 1;
+}
