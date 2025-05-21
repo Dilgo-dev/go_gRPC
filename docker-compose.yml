@@ -1,0 +1,30 @@
+services:
+  go-server:
+    build:
+      context: .
+      dockerfile: go/Dockerfile
+    ports:
+      - "${GO_PORT}:${GO_PORT}"
+      - "${GRPC_PORT}:${GRPC_PORT}"
+    environment:
+      - PORT=${GO_PORT}
+      - GRPC_PORT=${GRPC_PORT}
+    volumes:
+      - go-data:/app/data
+    restart: unless-stopped
+
+  node-server:
+    build:
+      context: .
+      dockerfile: node/Dockerfile
+    ports:
+      - "${NODE_PORT}:${NODE_PORT}"
+    environment:
+      - PORT=${NODE_PORT}
+      - GRPC_SERVER=go-server:${GRPC_PORT}
+    depends_on:
+      - go-server
+    restart: unless-stopped
+
+volumes:
+  go-data:
