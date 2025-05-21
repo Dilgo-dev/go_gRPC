@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PROTO_PATH = path.join(__dirname, '../../../proto/log.proto');
+const PROTO_PATH = path.join(__dirname, '../../proto/log.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
@@ -18,11 +18,10 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 
 const logProto = grpc.loadPackageDefinition(packageDefinition).log;
 
-const HOST = 'localhost';
-const PORT = '50051';
+const GRPC_SERVER = process.env.GRPC_SERVER || 'localhost:50051';
 
 const client = new logProto.LogService(
-  `${HOST}:${PORT}`,
+  GRPC_SERVER,
   grpc.credentials.createInsecure()
 );
 
