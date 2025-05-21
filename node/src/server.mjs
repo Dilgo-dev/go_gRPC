@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Fonction de logging qui utilise le service gRPC
 async function log(message) {
   try {
     const response = await createLog(message);
@@ -19,13 +18,11 @@ async function log(message) {
   }
 }
 
-// Route pour la page d'accueil
 app.get("/", (req, res) => {
   log("Page d'accueil visitée");
   res.send("Hello World");
 });
 
-// Route pour créer un log manuellement
 app.post("/log", async (req, res) => {
   try {
     const { message } = req.body;
@@ -40,7 +37,6 @@ app.post("/log", async (req, res) => {
   }
 });
 
-// Route pour récupérer tous les logs
 app.get("/logs", async (req, res) => {
   try {
     const logs = await getLogs();
@@ -53,6 +49,5 @@ app.get("/logs", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
   
-  // Log de démarrage du serveur
   log(`Serveur Node.js démarré sur le port ${PORT}`);
 });
