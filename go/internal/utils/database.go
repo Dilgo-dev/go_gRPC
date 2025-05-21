@@ -7,7 +7,7 @@ import (
 
 type Log struct {
   gorm.Model
-  message  string
+  Message  string
 }
 
 func Database() *gorm.DB {
