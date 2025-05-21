@@ -2,14 +2,14 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package.json .
+COPY node/package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY node/src/ ./src/
 
-ENV PORT=3000
+COPY proto/ ./proto/
 
-EXPOSE 3000
+EXPOSE ${NODE_PORT}
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
