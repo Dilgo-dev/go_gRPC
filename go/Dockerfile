@@ -1,21 +1,34 @@
-FROM golang:1.23-alpine AS development
-
-RUN apk add --no-cache git bash curl gcc musl-dev sqlite-dev && \
-    go install github.com/air-verse/air@latest
-
-ENV CGO_ENABLED=1
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+RUN apk add --no-cache gcc musl-dev sqlite-dev
+
+COPY go/go.mod go/go.sum ./
 
 RUN go mod download
 
-COPY . .
+COPY go/ ./
 
-EXPOSE 3333
+COPY proto/ ./proto/
 
-ENV GO_ENV=development
-ENV PORT=3333
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+RUN go build -a -ldflags '-extldflags "-static"' -o server cmd/server/main.go
 
-CMD ["air", "-c", ".air.toml"]
+FROM alpine:latest
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates sqlite
+
+COPY --from=builder /app/server /app/server
+
+RUN mkdir -p /app/data
+
+EXPOSE ${GO_PORT}
+EXPOSE ${GRPC_PORT}
+
+RUN chmod +x /app/server
+
+ENTRYPOINT ["/app/server"]

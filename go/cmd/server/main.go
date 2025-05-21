@@ -17,18 +17,28 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if _, err := os.Stat(".env"); err == nil {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("Warning: Error loading .env file")
+		}
 	}
+
 	utils.InitDatabase()
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.Fatal("Error: PORT env is not set")
+		port = "8080"
+		log.Println("PORT env not set, using default: 8080")
 	}
 
-	go startGrpcServer()
+	grpcPort := os.Getenv("GRPC_PORT")
+	if grpcPort == "" {
+		grpcPort = "50051"
+		log.Println("GRPC_PORT env not set, using default: 50051")
+	}
+
+	go startGrpcServer(grpcPort)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -38,12 +48,7 @@ func main() {
 	http.ListenAndServe(":"+port, r)
 }
 
-func startGrpcServer() {
-	grpcPort := os.Getenv("GRPC_PORT")
-	if grpcPort == "" {
-		log.Fatal("Error: GRPC_PORT env is not set")
-	}
-
+func startGrpcServer(grpcPort string) {
 	lis, err := net.Listen("tcp", ":"+grpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
